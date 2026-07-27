@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  @apply bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* mensagem sinalizada pela moderação fica borrada até o leitor optar por ver */
+.msg-blur {
+  filter: blur(7px);
+  user-select: none;
+}
