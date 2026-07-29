@@ -90,6 +90,15 @@ create table public.strikes (
   created_at timestamptz not null default now()
 );
 
+-- ---------- DENÚNCIAS (revisão humana — a IA não é perfeita) ----------
+create table public.reports (
+  id uuid primary key default gen_random_uuid(),
+  message_id uuid not null references public.messages(id) on delete cascade,
+  reporter_id uuid not null default auth.uid() references public.profiles(id) on delete cascade,
+  reason text,
+  created_at timestamptz not null default now()
+);
+
 -- canal padrão
 insert into public.channels (name, kind) values ('Geral', 'group');
 
@@ -181,6 +190,7 @@ alter table public.channel_members enable row level security;
 alter table public.messages enable row level security;
 alter table public.invites enable row level security;
 alter table public.strikes enable row level security;
+alter table public.reports enable row level security;
 
 -- perfis: qualquer usuário logado vê os perfis; cada um edita só campos seguros do próprio
 create policy "ver perfis" on public.profiles for select to authenticated using (true);
@@ -219,6 +229,18 @@ create policy "admin apaga mensagens" on public.messages for delete to authentic
 create policy "admin convites" on public.invites for all to authenticated
   using (public.is_admin()) with check (public.is_admin());
 create policy "admin strikes" on public.strikes for select to authenticated
+  using (public.is_admin());
+
+-- denúncias: qualquer membro denuncia mensagens dos canais em que está; só admin lê
+create policy "membro denuncia" on public.reports for insert to authenticated
+  with check (
+    reporter_id = auth.uid()
+    and exists (
+      select 1 from public.messages m
+      where m.id = message_id and public.is_member(m.channel_id)
+    )
+  );
+create policy "admin le denuncias" on public.reports for select to authenticated
   using (public.is_admin());
 
 -- ---------- TEMPO REAL ----------

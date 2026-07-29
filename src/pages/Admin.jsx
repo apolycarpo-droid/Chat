@@ -114,17 +114,22 @@ function Invites({ me }) {
 // ---------------- MODERAÇÃO ----------------
 function Moderation() {
   const [strikes, setStrikes] = useState([])
+  const [reports, setReports] = useState([])
   const [profiles, setProfiles] = useState({})
 
   useEffect(() => {
     const load = async () => {
-      const [{ data: s }, { data: p }] = await Promise.all([
+      const [{ data: s }, { data: r }, { data: p }] = await Promise.all([
         supabase.from('strikes')
           .select('*, messages(content, image_url)')
           .order('created_at', { ascending: false }).limit(200),
+        supabase.from('reports')
+          .select('*, messages(content, image_url, sender_id)')
+          .order('created_at', { ascending: false }).limit(100),
         supabase.from('profiles').select('id, name, banned'),
       ])
       setStrikes(s ?? [])
+      setReports(r ?? [])
       setProfiles(Object.fromEntries((p ?? []).map((x) => [x.id, x])))
     }
     load()
@@ -155,6 +160,27 @@ function Moderation() {
               {profiles[uid]?.banned
                 ? <span className="text-gray-400">banido</span>
                 : <button onClick={() => ban(uid)} className="text-red-600 font-medium">banir</button>}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {reports.length > 0 && (
+        <div className="space-y-2">
+          <p className="font-semibold text-sm">🚩 Denúncias de membros (revisão humana)</p>
+          {reports.map((r) => (
+            <div key={r.id} className="p-3 rounded-xl border border-amber-200 dark:border-amber-900 text-sm space-y-1">
+              <div className="flex justify-between text-xs text-gray-400">
+                <span>
+                  {profiles[r.reporter_id]?.name ?? 'membro'} denunciou{' '}
+                  {profiles[r.messages?.sender_id]?.name ?? 'usuário removido'}
+                </span>
+                <span>{new Date(r.created_at).toLocaleString('pt-BR')}</span>
+              </div>
+              {r.reason && <p className="text-amber-600">Motivo: {r.reason}</p>}
+              <p className="text-gray-500 italic break-words">
+                "{r.messages?.content ?? '(imagem ou mensagem removida)'}"
+              </p>
             </div>
           ))}
         </div>

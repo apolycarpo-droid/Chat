@@ -14,6 +14,7 @@ App de mensagens estilo iMessage com chamadas de vídeo e **moderação por Inte
   2. API de Moderação da OpenAI (**gratuita**) — ódio, assédio, sexual, violência, em texto **e** imagem
   3. Claude Haiku — analisa contexto (sarcasmo, bullying velado) só nos casos ambíguos
 - ✅ Níveis de intervenção: mensagem borrada com aviso ("ver mesmo assim"), bloqueio antes do envio e alerta ao admin quando alguém acumula 3+ sinalizações em 7 dias
+- ✅ Botão 🚩 **denunciar** em qualquer mensagem — porque IA não é perfeita, membros podem pedir revisão humana e as denúncias aparecem no painel do admin
 - ✅ Chamada de vídeo 1-a-1 (WebRTC ponto-a-ponto, sem servidor de mídia) e em grupo (Jitsi Meet gratuito)
 - ✅ Painel do administrador: convites, sinalizações, banir/desbanir
 - ✅ Tela de regras com consentimento do responsável, exclusão de conta e dados (LGPD), modo escuro automático
@@ -66,6 +67,8 @@ npx supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
    - `VITE_SUPABASE_ANON_KEY` = chave anon public
 3. **Deploy**. Em ~1 minuto o app estará no ar em `https://SEU-PROJETO.vercel.app`.
 4. Volte ao Passo 1.5 e cadastre essa URL no Supabase.
+
+> Alternativa igualmente gratuita: **Cloudflare Pages** — mesmo fluxo (importar o repositório e definir as duas variáveis), comando de build `npm run build`, pasta de saída `dist`.
 
 ### Passo 4 — Você é o admin
 
